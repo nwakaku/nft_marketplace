@@ -6,6 +6,16 @@ import useSigner from "state/signer";
 import NFT_MARKET from "../../../artifacts/contracts/NFTMarket.sol/NFTMarket.json";
 import useOwnedNFTs from "./useOwnedNFTs";
 import useOwnedListedNFTs from "./useOwnedListedNFTs";
+import useListedNFTs from "./useListedNFTs";
+
+export type NFT = {
+    id: string;
+    // Owner of NFT, if NFT is listed for sale, this will be the seller address
+    owner: string;
+    // If price > 0, the NFT is for sale
+    price: string;
+    tokenURI: string;
+};
 
 const NFT_MARKET_ADDRESS = process.env.NEXT_PUBLIC_NFT_MARKET_ADDRESS as string;
 
@@ -15,6 +25,7 @@ const useNFTMarket = () => {
 
     const ownedNFTs = useOwnedNFTs();
     const ownedListedNFTs = useOwnedListedNFTs();
+    const listedNFTs = useListedNFTs();
 
     const createNFT = async (values: CreationValues) => {
         try {
@@ -54,12 +65,19 @@ const useNFTMarket = () => {
         await transaction.wait();
     }
 
+    const buyNFT = async (nft: NFT) => {
+        //something
+    };
+
     return {
         createNFT, 
         listNFT,
+        buyNFT,
         ...ownedNFTs,
         ...ownedListedNFTs,
-    cancelListing
+        ...listedNFTs,
+        cancelListing,
+
     };
 };
 

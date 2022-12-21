@@ -1,6 +1,8 @@
 import classNames from "classnames";
 import { BigNumber } from "ethers";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import useNFTMarket from "state/nft-market";
 import { NFT } from "state/nft-market/interfaces";
 import useSigner from "state/signer";
@@ -21,8 +23,9 @@ type NFTCardProps = {
 
 const NFTCard = (props: NFTCardProps) => {
   const { nft, className } = props;
-  const {address} = useSigner();
-  const {listNFT, cancelListing} = useNFTMarket();
+  const { address } = useSigner();
+  const { listNFT, cancelListing, buyNFT } = useNFTMarket();
+  const router = useRouter();
   const [meta, setMeta] = useState<NFTMetadata>();
   const [loading, setLoading] = useState(false);
   const [sellPopupOpen, setSellPopupOpen] = useState(false);
@@ -41,6 +44,8 @@ const NFTCard = (props: NFTCardProps) => {
     void fetchMetadata();
   }, [nft.tokenURI]);
 
+  const showErrorToast = () => toast.warn("Something wrong!");
+
   const onButtonClick = async () => {
     if (owned) {
       if (forSale) onCancelClicked();
@@ -56,14 +61,29 @@ const NFTCard = (props: NFTCardProps) => {
   };
 
   const onBuyClicked = async () => {
-    // TODO: buy NFT
+    setLoading(true);
+    try {
+      await buyNFT(nft);
+      router.push("/owned");
+      toast.success(
+        "You collection will be updated shortly! Refresh the page."
+      );
+    } catch (e) {
+      showErrorToast();
+      console.log(e);
+    }
+    setLoading(false);
   };
 
   const onCancelClicked = async () => {
     setLoading(true);
     try {
       await cancelListing(nft.id);
+      toast.success(
+        "You canceled this listing. Changes will be reflected shortly."
+      );
     } catch (e) {
+      showErrorToast();
       console.log(e);
     }
     setLoading(false);
@@ -74,7 +94,11 @@ const NFTCard = (props: NFTCardProps) => {
     setLoading(true);
     try {
       await listNFT(nft.id, price);
+      toast.success(
+        "You listed this NFT for sale. Changes will be reflected shortly."
+      );
     } catch (e) {
+      showErrorToast();
       console.log(e);
     }
     setLoading(false);
