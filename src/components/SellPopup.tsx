@@ -35,7 +35,7 @@ const SellPopup = (props: SellPopupProps) => {
             htmlFor="price"
             className="ml-2 text-xs font-semibold text-gray-500"
           >
-            PRICE (ETH)
+            PRICE (MATIC)
           </label>
           <Input
             name="price"

@@ -5,6 +5,7 @@ import { CreationValues } from "modules/CreationPage/CreationForm";
 import useSigner from "state/signer";
 import NFT_MARKET from "../../../artifacts/contracts/NFTMarket.sol/NFTMarket.json";
 import useOwnedNFTs from "./useOwnedNFTs";
+import useOwnedListedNFTs from "./useOwnedListedNFTs";
 
 const NFT_MARKET_ADDRESS = process.env.NEXT_PUBLIC_NFT_MARKET_ADDRESS as string;
 
@@ -13,6 +14,7 @@ const useNFTMarket = () => {
     const nftMarket = new Contract(NFT_MARKET_ADDRESS, NFT_MARKET.abi, signer);
 
     const ownedNFTs = useOwnedNFTs();
+    const ownedListedNFTs = useOwnedListedNFTs();
 
     const createNFT = async (values: CreationValues) => {
         try {
@@ -36,9 +38,28 @@ const useNFTMarket = () => {
             console.log(e);
         }
     };
+
+    const listNFT = async (tokenID: string, price: BigNumber) => {
+        const transaction: TransactionResponse = await nftMarket.listNFT(
+            tokenID,
+            price
+        );
+        await transaction.wait();
+    };
+
+    const cancelListing = async (tokenID: string) => {
+        const transaction: TransactionResponse = await nftMarket.cancelListing(
+            tokenID
+        );
+        await transaction.wait();
+    }
+
     return {
         createNFT, 
-        ...ownedNFTs
+        listNFT,
+        ...ownedNFTs,
+        ...ownedListedNFTs,
+    cancelListing
     };
 };
 
